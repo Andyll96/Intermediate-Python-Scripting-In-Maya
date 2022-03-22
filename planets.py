@@ -37,7 +37,20 @@ def makePlanets():
             cmds.select(f'planet_{str(i)}', tgl=True)
             cmds.parent()
 
-        cmds.expression(string=f'planet_{str(i)}.rotateY=time*10', object=f'planet_{str(i)}', ae=True, uc='all')
+        cmds.expression(string=f'planet_{str(i)}.rotateY=time*50', object=f'planet_{str(i)}', ae=True, uc='all')
+
+        cmds.select(f'planet_{str(i)}', replace=True)
+        cmds.move(20*i, 0, 0, relative=True)
+
+        # creates a new empty group
+        cmds.group(em=True, name=f'planetGroup_{str(i)}')
+
+        cmds.select(f'planet_{str(i)}', replace=True)
+        cmds.select(f'planetGroup_{str(i)}', tgl=True)
+
+        cmds.parent()
+
+        cmds.expression(string=f'planetGroup_{str(i)}.rotateY=(time + {str(random.uniform(0,360))})*25', object=f'planetGroup_{str(i)}', ae=True, uc='all')
 
 def makeUI():
     if(cmds.window('planetWindow', exists=True)):
@@ -46,10 +59,10 @@ def makeUI():
     window = cmds.window('planetWindow',title='Planet Maker',  widthHeight=(200,55))
     cmds.columnLayout(adjustableColumn=True)
     cmds.text(label='Number of Planets')
-    cmds.intField('numPlanets',minValue=1, maxValue=100, value=1)
+    cmds.intField('numPlanets',minValue=1, maxValue=100, value=5)
     
     cmds.text(label='Number of Moons')
-    cmds.intField('numMoons',minValue=1, maxValue=100, value=1)
+    cmds.intField('numMoons',minValue=1, maxValue=100, value=5)
 
     cmds.button(label='Make Planets', command='makePlanets()')
 
