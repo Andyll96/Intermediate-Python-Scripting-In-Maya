@@ -2,7 +2,11 @@ from genericpath import exists
 from maya import cmds
 import random
 
-def makePlanets(numPlanets, numMoons):
+def makePlanets():
+
+    numPlanets = cmds.intField('numPlanets', query=True, value=True)
+    numMoons = cmds.intField('numMoons', query=True, value=True)
+
     for i in range(0,numPlanets):
         # planet
         planetRadius = random.uniform(3,8)
@@ -41,6 +45,14 @@ def makeUI():
 
     window = cmds.window('planetWindow',title='Planet Maker',  widthHeight=(200,55))
     cmds.columnLayout(adjustableColumn=True)
+    cmds.text(label='Number of Planets')
+    cmds.intField('numPlanets',minValue=1, maxValue=100, value=1)
+    
+    cmds.text(label='Number of Moons')
+    cmds.intField('numMoons',minValue=1, maxValue=100, value=1)
+
+    cmds.button(label='Make Planets', command='makePlanets()')
+
     cmds.showWindow(window)
     
 # makePlanets(1, 10)
