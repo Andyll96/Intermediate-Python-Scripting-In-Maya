@@ -49,6 +49,9 @@ class rainbowWaveUI(QtWidgets.QDialog):
         self.setWindowTitle("Rainbow Wave")
         self.setFixedSize(QtCore.QSize(400,500))
         self.library = rainbowWaveController()
+        self.spinBox1Val = 0
+        self.spinBox2Val = 0
+        self.spinBox3Val = 0
         self.buildUI()
         
     def buildUI(self):
@@ -59,41 +62,62 @@ class rainbowWaveUI(QtWidgets.QDialog):
 
 
         label1 = QtWidgets.QLabel('Width(X):')
-        spinBox1 = QtWidgets.QSpinBox()
-        spinBox1.setRange(0,10)
+        self.spinBox1 = QtWidgets.QSpinBox()
+        self.spinBox1.setRange(1,10)
+        self.spinBox1.valueChanged.connect(self.updateSpinBox1Val)
         Hlayout1.addWidget(label1)
-        Hlayout1.addWidget(spinBox1)
+        Hlayout1.addWidget(self.spinBox1)
         layout.addLayout(Hlayout1)
 
         slider1 = QtWidgets.QSlider(QtCore.Qt.Horizontal)
         slider1.setRange(1,10)
+        slider1.sliderMoved.connect(self.spinBox1.setValue)
+        self.spinBox1.valueChanged.connect(slider1.setValue)
         layout.addWidget(slider1)
 
         label2 = QtWidgets.QLabel('Length(Z):')
-        spinBox2 = QtWidgets.QSpinBox()
-        spinBox2.setRange(0,10)
+        self.spinBox2 = QtWidgets.QSpinBox()
+        self.spinBox2.setRange(1,10)
+        self.spinBox2.valueChanged.connect(self.updateSpinBox2Val)
         Hlayout2.addWidget(label2)
-        Hlayout2.addWidget(spinBox2)
+        Hlayout2.addWidget(self.spinBox2)
         layout.addLayout(Hlayout2)
         
         slider2 = QtWidgets.QSlider(QtCore.Qt.Horizontal)
         slider2.setRange(1,10)
+        slider2.sliderMoved.connect(self.spinBox2.setValue)
+        self.spinBox2.valueChanged.connect(slider2.setValue)
         layout.addWidget(slider2)
         
         label3 = QtWidgets.QLabel('Height(Y):')
-        spinBox3 = QtWidgets.QSpinBox()
-        spinBox3.setRange(0,10)
+        self.spinBox3 = QtWidgets.QSpinBox()
+        self.spinBox3.setRange(1,10)
+        self.spinBox3.valueChanged.connect(self.updateSpinBox3Val)
         Hlayout3.addWidget(label3)
-        Hlayout3.addWidget(spinBox3)
+        Hlayout3.addWidget(self.spinBox3)
         layout.addLayout(Hlayout3)
 
         slider3 = QtWidgets.QSlider(QtCore.Qt.Horizontal)
         slider3.setRange(1,10)
+        slider3.sliderMoved.connect(self.spinBox3.setValue)
+        self.spinBox3.valueChanged.connect(slider3.setValue)
         layout.addWidget(slider3)
         
         generateButton = QtWidgets.QPushButton('Generate')
-        # generateButton.clicked.connect()
+        generateButton.clicked.connect(self.generate)
         layout.addWidget(generateButton)
+
+    def updateSpinBox1Val(self, i):
+        self.spinBox1Val = i
+
+    def updateSpinBox2Val(self, i):
+        self.spinBox2Val = i
+
+    def updateSpinBox3Val(self, i):
+        self.spinBox3Val = i
+
+    def generate(self):
+        self.library.createField(self.spinBox1Val, self.spinBox2Val, self.spinBox3Val)
 
 def showUI():
     ui = rainbowWaveUI()
