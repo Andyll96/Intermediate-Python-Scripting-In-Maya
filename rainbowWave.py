@@ -1,4 +1,7 @@
+import math
+import random
 from tkinter import Spinbox
+from turtle import clear
 from maya import cmds
 from PySide2 import QtWidgets, QtGui, QtCore
 
@@ -6,6 +9,28 @@ from PySide2 import QtWidgets, QtGui, QtCore
 """
 
 class rainbowWaveController():
+
+    def deleteExisting(self):
+        cmds.select(clear=True)
+        objects = cmds.ls(dag=True, long=True)
+        print(f'objects:\n{objects}')
+        for obj in objects:
+            if('_grp' in obj and '_geo' not in obj):
+                cmds.select(obj)
+                cmds.delete()
+                # print(f'Deleted: {obj}')
+
+    def scaleRange(self, val):
+        oldRange = 2
+        newRange = 1
+        newVal = ((val + 1) * newRange) / oldRange
+        return newVal
+    
+    def sphereColor(self, timeVal):
+        rVal = self.scaleRange(math.sin(math.radians(timeVal)))
+        gVal = self.scaleRange(math.sin(math.radians(timeVal + 120)))
+        bVal = self.scaleRange(math.sin(math.radians(timeVal + 240)))
+        return [rVal, gVal, bVal] 
 
     def createField(self, length=1, width=1, height=1):
         print(f'length: {length}\nwidth: {width}\nheight: {height}')
@@ -23,26 +48,28 @@ class rainbowWaveController():
                     cmds.select(f'{sphereName}_geo')
                     cmds.move(l + 0.5, h, w)
 
-                    # l+w+h is the offset which is different for every circle
-                    cmds.expression(s=f'{sphereName}_grp.rotateX = (time + {l + w + h}) * 30')
-                    cmds.expression(s=f'{sphereName}_grp.rotateY = (time + {l + w + h}) * 30')
-                    cmds.expression(s=f'{sphereName}_grp.rotateZ = (time + {l + w + h}) * 30')
+                    rotationVariation = random.uniform(0,0.5)
+                    offset = l+w+h+rotationVariation
 
-                    # offset = random.uniform(0,1)
-                    # cmds.expression(s=f'{sphereName}_geo.scaleX = abs(sin(time) + 1/{l+w+h+1})')
-                    # cmds.expression(s=f'{sphereName}_geo.scaleY = abs(sin(time) + 1/{l+w+h+1})')
-                    # cmds.expression(s=f'{sphereName}_geo.scaleZ = abs(sin(time) + 1/{l+w+h+1})')
+                    cmds.expression(s=f'{sphereName}_grp.rotateX = (time + {str(offset)})*30', ae=True, uc='all')
+                    cmds.expression(s=f'{sphereName}_grp.rotateY = (time + {str(offset)})*30', ae=True, uc='all')
+                    cmds.expression(s=f'{sphereName}_grp.rotateZ = (time + {str(offset)})*30', ae=True, uc='all')
 
-    def deleteExisting(self):
-        cmds.select(clear=True)
-        objects = cmds.ls(dag=True, long=True)
-        print(f'objects:\n{objects}')
-        for obj in objects:
-            if('_grp' in obj and '_geo' not in obj):
-                cmds.select(obj)
-                cmds.delete()
-                # print(f'Deleted: {obj}')
+                    cmds.expression(s=f'{sphereName}_geo.scaleX = abs(sin(time + {str(offset)}/5))', ae=True, uc='all')
+                    cmds.expression(s=f'{sphereName}_geo.scaleY = abs(sin(time + {str(offset)}/5))', ae=True, uc='all')
+                    cmds.expression(s=f'{sphereName}_geo.scaleZ = abs(sin(time + {str(offset)}/5))', ae=True, uc='all')
 
+                    colorVariation = 20 * (random.uniform(1,1.5))
+
+                    col = self.sphereColor(w * colorVariation)
+                    cmds.select(f'{sphereName}_geo', r=True)
+                    vertCount = cmds.polyEvaluate(v=True)
+
+                    cmds.select(f'{sphereName}_geo.vtx[0:{str(vertCount-1)}]', r=True)
+                    cmds.polyColorPerVertex(rgb=(col[0],col[1], col[2]), cdo=True)
+
+                    cmds.select(clear=True)
+    
 class rainbowWaveUI(QtWidgets.QDialog):
     def __init__(self):
         super(rainbowWaveUI, self).__init__()
